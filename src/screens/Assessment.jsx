@@ -52,13 +52,16 @@ export default function Assessment() {
       setCompleted(true);
     } catch (err) {
       console.error('Assessment submission error:', err);
+      
+      const serverDetail = err.response?.data?.message || err.message;
+      
       const errorMsg = !API_URL && !window.location.hostname.includes('localhost')
         ? 'API Configuration missing. Please set VITE_API_URL in your environment.'
         : err.response?.status === 400 
         ? 'Invalid answers. Please ensure all questions are answered.'
         : err.code === 'ECONNABORTED' 
         ? 'Connection timeout. Backend may be unavailable.'
-        : `Failed to submit assessment. Backend reachable: ${API_URL || 'http://localhost:8000'}`;
+        : `Failed to submit assessment. Backend reachable: ${API_URL || 'http://localhost:8000'}. Root cause: ${serverDetail}`;
       setError(errorMsg);
     } finally {
       setLoading(false);
