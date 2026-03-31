@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { HiOutlineChevronLeft, HiOutlinePaperAirplane } from 'react-icons/hi2';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function Chat() {
   const { expertName, initials, color } = useParams();
@@ -51,14 +51,16 @@ export default function Chat() {
     } catch (error) {
       console.error('Chat error:', error);
       
-      let errorMessage = 'Connection error. Please ensure the backend is running.';
+      let errorMessage = 'Connection error.';
       
-      if (error.code === 'ECONNABORTED') {
+      if (!API_URL && !window.location.hostname.includes('localhost')) {
+          errorMessage = 'API Configuration missing. Please set VITE_API_URL in your environment.';
+      } else if (error.code === 'ECONNABORTED') {
         errorMessage = 'Request timed out. Please try again.';
       } else if (error.response?.status === 500) {
         errorMessage = 'Server error. Please try again later.';
       } else if (error.message === 'Network Error') {
-        errorMessage = 'Network error. Please check your connection and ensure the backend is running at ' + API_URL;
+        errorMessage = `Network error. Could not connect to backend at ${API_URL || 'http://localhost:8000'}`;
       }
       
       setError(errorMessage);

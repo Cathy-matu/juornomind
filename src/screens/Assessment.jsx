@@ -4,7 +4,7 @@ import axios from 'axios';
 import { HiOutlineChevronLeft, HiOutlineCheckCircle, HiOutlineHome, HiOutlineUsers, HiOutlineClipboardDocumentCheck, HiOutlineBookOpen } from 'react-icons/hi2';
 import NavItem from '../components/NavItem';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const QUESTIONS = [
   "Over the past week, how often have you had unwanted memories or flashbacks of distressing events you covered?",
@@ -52,11 +52,13 @@ export default function Assessment() {
       setCompleted(true);
     } catch (err) {
       console.error('Assessment submission error:', err);
-      const errorMsg = err.response?.status === 400 
+      const errorMsg = !API_URL && !window.location.hostname.includes('localhost')
+        ? 'API Configuration missing. Please set VITE_API_URL in your environment.'
+        : err.response?.status === 400 
         ? 'Invalid answers. Please ensure all questions are answered.'
         : err.code === 'ECONNABORTED' 
         ? 'Connection timeout. Backend may be unavailable.'
-        : 'Failed to submit assessment. Please try again.';
+        : `Failed to submit assessment. Backend reachable: ${API_URL || 'http://localhost:8000'}`;
       setError(errorMsg);
     } finally {
       setLoading(false);
